@@ -1,0 +1,21 @@
+{
+  "name": "0",
+  "version": "0.0.0",
+  "homepage": "https://github.com/dominictarr/0",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/dominictarr/0.git"
+  },
+  "dependencies": {
+    "duplex": "~1.0.0",
+    "count-tabs": "~0.2.0"
+  },
+  "devDependencies": {
+    "ecstatic": "~0.3.0"
+  },
+  "scripts": {
+    "test": "set -e; for t in test/*.js; do node $t; done"
+  },
+  "author": "Dominic Tarr <dominic.tarr@gmail.com> (http://dominictarr.com)",
+  "license": "MIT"
+}
