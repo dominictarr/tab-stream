@@ -1,5 +1,5 @@
 var tabs = TABS = require('../')
-var autonode = require('autonode').inject(tabs)
+var Autonode = require('autonode').inject(tabs)
 var Repred   = require('repred')
 var h        = require('h')
 
@@ -24,20 +24,34 @@ var repred = Repred(function (value) {
 
 console.log(tabs)
 
-autonode(function (stream) {
-  console.log('autonode - connect')
-  stream.pipe(repred.createStream()).pipe(stream)
-}).listen('hi')
+var autonode = 
+  Autonode(function (stream) {
+    console.log('autonode - connect')
+    stream.pipe(repred.createStream()).pipe(stream)
+  }).listen('hi')
 
-var input = h('input', {input: function () {
-    repred.update(input.value)
-  }
-})
+var input, label
+
+document.body.appendChild(
+  h('div', 
+    input = h('input', {input: function () {
+        repred.update(input.value)
+      }
+    }),
+    label = h('label', '(unconnected)')
+  )
+)
 
 repred.on('update', function (up) {
-//  if(input.value != up.val)
+  if(input.value != up.val)
     input.value = up.val
 })
 
-document.body.appendChild(input)
+autonode
+  .on('listening', function () {
+    label.innerText = '(server)'
+  })
+  .on('connecting', function () {
+    label.innerText = '(client)'
+  })
 
