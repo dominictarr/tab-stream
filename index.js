@@ -5,6 +5,9 @@ var Duplex       = require('duplex')
 var Tabs         = require('count-tabs')
 
 var streams = {}
+//only localStorage will work.
+//session storage is scoped to the current window
+//(but persists between pages viewed in that same window on the same domain...)
 var storage = localStorage
 
 function error (code, message) {
@@ -35,6 +38,9 @@ CTABS = tabs
 console.log(tabs.tabs)
 
 function createStream(id, server) {
+  console.log('CREATE STREAM', id)
+  if(id === 'TABSTREAM_hi_')
+    throw new Error('wtf')
   var d = streams[id] = Duplex()
 
 //  d.host = host
@@ -44,7 +50,7 @@ function createStream(id, server) {
   d.on('_data', function (data) {
     storage[id] = ((server ? -1 : 1) * (d.count ++)) + ':' + data
   }).on('_end', function () {
-    localStorage[id] = null
+    storage[id] = null
   }).on('close', function () {
     delete storage[id]
     delete streams[id]
@@ -90,6 +96,11 @@ exports.createServer = function (onConnection) {
 
   function onStorage (se) {
     if(se.storageArea !== storage) return
+    if(se.key === server.key) {
+      //port was stolen.
+      window.removeEventListener('storage', onStorage, false)
+      return server.emit('error', error('EADDRINUSE', 'port stolen'))
+    }
     if(0 !== se.key.indexOf(server.key)) return
     if(!streams[se.key]) {
       server.emit('connection', createStream(se.key, true))
